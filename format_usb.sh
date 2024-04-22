@@ -1,19 +1,15 @@
 #!/bin/bash
 
-# Prompt the user to enter the device path (e.g., /dev/sdb1)
-read -p "Enter the device path (e.g., /dev/sdb1): " device_path
+# Find USB device path
+device_path=$(lsblk -lpo NAME,TYPE,RM | grep '1 disk' | awk '{print $1}' | head -n 1)
 
-# Check if the device path is provided
+# Check if a USB device path is found
 if [ -z "$device_path" ]; then
-    echo "Device path is not provided. Exiting..."
+    echo "No USB device found. Exiting..."
     exit 1
 fi
 
-# Check if the device exists
-if ! [ -b "$device_path" ]; then
-    echo "Device does not exist. Exiting..."
-    exit 1
-fi
+echo "Detected USB device at $device_path"
 
 # Confirm with the user before formatting the device
 read -p "This will format $device_path. Are you sure you want to continue? (y/n): " confirm
@@ -31,5 +27,5 @@ if [ $? -eq 0 ]; then
     echo "Format completed successfully."
 else
     echo "Format failed. Please check the device and try again."
+    exit 1
 fi
-
